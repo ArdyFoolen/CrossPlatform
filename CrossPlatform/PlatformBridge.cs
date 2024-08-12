@@ -1,4 +1,7 @@
-﻿namespace CrossPlatform
+﻿using CrossPlatform.CrossPlatformControls;
+using CrossPlatform.UIInterfaces;
+
+namespace CrossPlatform
 {
     /// <summary>
     /// Abstraction of the Bridge pattern
@@ -7,39 +10,29 @@
     public class PlatformBridge
     {
         private readonly IPlatformFactory platformFactory;
+        private readonly IUIParser uIParser;
         private readonly List<CrossPlatformControl> controls = new List<CrossPlatformControl>();
 
-        public PlatformBridge(IPlatformFactory platformFactory)
+        public PlatformBridge(IPlatformFactory platformFactory, IUIParser uiParser)
         {
             this.platformFactory = platformFactory;
+            this.uIParser = uiParser;
         }
 
         public ICustomTimer CreateTimer()
             => platformFactory.CreateTimer();
 
-        /// <summary>
-        /// Should be refactored to return CrossPlatformButton
-        /// </summary>
-        /// <returns></returns>
-        public IButton CreateButton()
-        {
-            CrossPlatformButton button = new CrossPlatformButton();
-            controls.Add(button);
-            return platformFactory.CreateButton(button);
-        }
-
-        public void RunCrossPlatformApp()
+        public IControl RunCrossPlatformApp()
         {
             var timer = CreateTimer();
 
             timer.Start();
             timer.Stop();
 
-            // Normally would return the CrossPlatformButton, but because I want to test the UserSide click I return IButton
-            var button = CreateButton();
+            var control = this.uIParser.Parse();
+            control.Load();
 
-            // Click normally happens on WindowsApp or UbuntuApp side by the user
-            button.Click();
+            return control;
         }
     }
 }

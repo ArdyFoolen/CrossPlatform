@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrossPlatform
+namespace CrossPlatform.UIInterfaces
 {
-    public interface IButton
+    public interface IForm : IControl
     {
-        public void Click();
-        public void Test();
+        public void Load();
+
+        public void LoadTest();
     }
 }

@@ -1,11 +1,11 @@
-﻿using CrossPlatform;
+﻿using CrossPlatform.UIInterfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WindowsApp
+namespace WindowsApp.Controls
 {
     public class WindowsTimer : ICustomTimer
     {

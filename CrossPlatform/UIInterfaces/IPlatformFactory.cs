@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CrossPlatform
+namespace CrossPlatform.UIInterfaces
 {
     public interface IPlatformFactory
     {
         public ICustomTimer CreateTimer();
-        public IButton CreateButton(IEvent @event);
+        public IButton CreateButton();
+        public IForm CreateForm();
     }
 }
