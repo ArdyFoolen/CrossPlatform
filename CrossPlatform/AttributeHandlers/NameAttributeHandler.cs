@@ -1,9 +1,11 @@
-﻿using System;
+﻿using CrossPlatform.UIInterfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using CrossPlatform.CrossPlatformControls;
 
 namespace CrossPlatform.AttributeHandlers
 {
@@ -16,10 +18,13 @@ namespace CrossPlatform.AttributeHandlers
         {
             if ("name".Equals(reader.Name.ToLowerInvariant()))
             {
+                uIBuilder.WithControl();
+
                 if (!string.IsNullOrWhiteSpace(reader.Value))
                     uIBuilder.WithName(reader.Value);
                 return true;
             }
+
             return HandleNext(reader);
         }
     }

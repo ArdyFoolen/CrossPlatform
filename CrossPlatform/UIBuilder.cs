@@ -13,8 +13,8 @@ namespace CrossPlatform
 {
     public interface IUIBuilder
     {
-        public UIBuilder WithButton();
-        public UIBuilder WithForm();
+        public UIBuilder WithControlType(string controlType);
+        public UIBuilder WithControl();
         public UIBuilder WithName(string name);
         public UIBuilder WithEvent(string eventName, string methodName);
         public IControl Build();
@@ -23,31 +23,40 @@ namespace CrossPlatform
     public class UIBuilder : IUIBuilder
     {
         private readonly IPlatformFactory platformFactory;
+
+        private readonly Dictionary<string, Func<IControl, CrossPlatformControl>> Factories = new Dictionary<string, Func<IControl, CrossPlatformControl>>()
+        {
+            { "Form", c => new CrossPlatformForm(c) },
+            { "Button", c => new CrossPlatformButton(c) }
+        };
+
         private Stack<CrossPlatformControl> stack = new Stack<CrossPlatformControl>();
         private IControl? root = null;
+        private string controlType;
 
         public UIBuilder(IPlatformFactory platformFactory)
         {
             this.platformFactory = platformFactory;
         }
 
-        public UIBuilder WithButton()
+        public UIBuilder WithControlType(string controlType)
         {
-            var control = platformFactory.CreateButton();
-            CrossPlatformButton button = new CrossPlatformButton(control);
-            AddToParent(button);
-            stack.Push(button);
-            SetRoot(control);
-
+            this.controlType = controlType;
             return this;
         }
 
-        public UIBuilder WithForm()
+        public UIBuilder WithControl()
         {
-            var control = platformFactory.CreateForm();
-            CrossPlatformForm form = new CrossPlatformForm(control);
-            AddToParent(form);
-            stack.Push(form);
+            var control = platformFactory.CreateControl(controlType);
+            if (control == null)
+                throw new NotImplementedException($"Control \"{controlType}\" not implemented");
+
+            if (!Factories.ContainsKey(controlType))
+                throw new NotImplementedException($"Control factory for \"{controlType}\" does not exist");
+
+            CrossPlatformControl platformControl = Factories[controlType](control);
+            AddToParent(platformControl);
+            stack.Push(platformControl);
             SetRoot(control);
 
             return this;

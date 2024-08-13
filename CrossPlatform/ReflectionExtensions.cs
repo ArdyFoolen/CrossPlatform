@@ -1,4 +1,5 @@
 ﻿using CrossPlatform.CrossPlatformControls;
+using CrossPlatform.UIInterfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,5 +40,7 @@ namespace CrossPlatform
             var addMethod = eventInfo?.GetAddMethod(true);
             addMethod?.Invoke(obj, [handler]);
         }
+        public static IControl? CreateControl(this IPlatformFactory platformFactory, string methodName)
+            => (IControl?)platformFactory.GetMethod($"Create{methodName}", null)?.Invoke(platformFactory, null);
     }
 }

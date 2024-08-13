@@ -41,7 +41,7 @@ namespace CrossPlatform
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    ParseControl(reader);
+                    uIBuilder.WithControlType(reader.Name);
                     ParseAttributes(reader);
                 }
             }
@@ -59,20 +59,6 @@ namespace CrossPlatform
                         throw new NotImplementedException($"Attribute {reader.Name} not implemented");
                 }
                 reader.MoveToElement();
-            }
-        }
-
-        private void ParseControl(XmlReader reader)
-        {
-            switch (reader.Name.ToLowerInvariant())
-            {
-                case "button":
-                    uIBuilder.WithButton();
-                    break;
-                case "form":
-                    uIBuilder.WithForm();
-                    break;
-                default: throw new Exception("Invalid control");
             }
         }
     }
