@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,8 +16,7 @@ namespace CrossPlatform
         public UIBuilder WithButton();
         public UIBuilder WithForm();
         public UIBuilder WithName(string name);
-        public UIBuilder WithLoad(string methodName);
-        public UIBuilder WithClick(string methodName);
+        public UIBuilder WithEvent(string eventName, string methodName);
         public IControl Build();
     }
 
@@ -61,35 +61,12 @@ namespace CrossPlatform
             return this;
         }
 
-        public UIBuilder WithLoad(string methodName)
+        public UIBuilder WithEvent(string eventName, string methodName)
         {
             var control = stack.Pop();
-
-            var eventInfo = control.GetType().GetEvent("loadEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            var methodInfo = control.GetType().GetMethod(methodName, 
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance, 
-                new Type[] { typeof(object), typeof(EventArgs) });
-            Delegate handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, control, methodInfo);
-            var addMethod = eventInfo.GetAddMethod(true);
-            addMethod?.Invoke(control, new[] { handler });
-
+            control.AddEventHandler(eventName, methodName);
             stack.Push(control);
-            return this;
-        }
 
-        public UIBuilder WithClick(string methodName)
-        {
-            var control = stack.Pop();
-
-            var eventInfo = control.GetType().GetEvent("clickEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            var methodInfo = control.GetType().GetMethod(methodName,
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                new Type[] { typeof(object), typeof(EventArgs) });
-            Delegate handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, control, methodInfo);
-            var addMethod = eventInfo.GetAddMethod(true);
-            addMethod?.Invoke(control, new[] { handler });
-
-            stack.Push(control);
             return this;
         }
 

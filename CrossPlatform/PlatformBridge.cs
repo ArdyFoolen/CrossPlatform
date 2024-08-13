@@ -1,4 +1,5 @@
-﻿using CrossPlatform.CrossPlatformControls;
+﻿using CrossPlatform.AttributeHandlers;
+using CrossPlatform.CrossPlatformControls;
 using CrossPlatform.UIInterfaces;
 
 namespace CrossPlatform
@@ -33,6 +34,14 @@ namespace CrossPlatform
             control.Load();
 
             return control;
+        }
+
+        public static PlatformBridge Create(IPlatformFactory factory)
+        {
+            var uiBuilder = new UIBuilder(factory);
+            var attributeHandler = new NameAttributeHandler(uiBuilder, new EventAttributeHandler(uiBuilder));
+            var parser = new UIParser(uiBuilder, attributeHandler);
+            return new PlatformBridge(factory, parser);
         }
     }
 }

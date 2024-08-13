@@ -1,11 +1,10 @@
 ﻿using CrossPlatform;
+using CrossPlatform.AttributeHandlers;
 using CrossPlatform.UIInterfaces;
 using UbuntuApp;
 
 var factory = new UbuntuPlatformFactory();
-var builder = new UIBuilder(factory);
-var parser = new UIParser(builder);
-var bridge = new PlatformBridge(factory, parser);
+var bridge = PlatformBridge.Create(factory);
 
 var control = bridge.RunCrossPlatformApp();
 

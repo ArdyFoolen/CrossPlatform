@@ -7,6 +7,8 @@ using System.Xml.Serialization;
 using System.Xml;
 using CrossPlatform.UIInterfaces;
 using CrossPlatform.CrossPlatformControls;
+using CrossPlatform.AttributeHandlers;
+using System.Xml.Linq;
 
 namespace CrossPlatform
 {
@@ -18,10 +20,12 @@ namespace CrossPlatform
     public class UIParser : IUIParser
     {
         private readonly IUIBuilder uIBuilder;
+        private readonly IAttributeHandler attributeHandler;
 
-        public UIParser(IUIBuilder uIBuilder)
+        public UIParser(IUIBuilder uIBuilder, IAttributeHandler attributeHandler)
         {
-            this.uIBuilder=uIBuilder;
+            this.uIBuilder = uIBuilder;
+            this.attributeHandler = attributeHandler;
         }
 
         public IControl Parse()
@@ -38,42 +42,23 @@ namespace CrossPlatform
                 if (reader.NodeType == XmlNodeType.Element)
                 {
                     ParseControl(reader);
-                    AddNameAttribute(reader);
-                    AddLoadEvent(reader);
-                    AddClickEvent(reader);
+                    ParseAttributes(reader);
                 }
             }
 
             return uIBuilder.Build();
         }
 
-        private void AddNameAttribute(XmlReader reader)
+        private void ParseAttributes(XmlReader reader)
         {
-            if (reader.MoveToAttribute("name"))
+            if (reader.HasAttributes)
             {
-                var name = reader.GetAttribute("name");
-                if (!string.IsNullOrWhiteSpace(name))
-                    uIBuilder.WithName(name);
-            }
-        }
-
-        private void AddLoadEvent(XmlReader reader)
-        {
-            if (reader.MoveToAttribute("load"))
-            {
-                var name = reader.GetAttribute("load");
-                if (!string.IsNullOrWhiteSpace(name))
-                    uIBuilder.WithLoad(name);
-            }
-        }
-
-        private void AddClickEvent(XmlReader reader)
-        {
-            if (reader.MoveToAttribute("click"))
-            {
-                var name = reader.GetAttribute("click");
-                if (!string.IsNullOrWhiteSpace(name))
-                    uIBuilder.WithClick(name);
+                while (reader.MoveToNextAttribute())
+                {
+                    if (!attributeHandler.Handle(reader))
+                        throw new NotImplementedException($"Attribute {reader.Name} not implemented");
+                }
+                reader.MoveToElement();
             }
         }
 
